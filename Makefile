@@ -30,9 +30,8 @@
 
 
 #### ===> Méthode 2 ####
-#VERSION_FILE  := version.txt
-#VERSION       := $(shell cat $(VERSION_FILE))
-#VERSION_NEXT  := $(shell echo $$(($(VERSION)+1)))
+VERSION = $(shell date +%Y-%m-%d_%H-%M-%S)
+ARCHIVE_NAME = $(notdir $(CURDIR))_archive_v$(VERSION).zip
 CURRENT_FOLDER = $(shell basename "$(shell pwd)")
 NAME           = $(CURRENT_FOLDER)
 DIR_NAME      := $(shell basename "$(CURDIR)")
@@ -151,8 +150,6 @@ fclean: clean unpack
 re: fclean
 	@$(MAKE) all
 
-#version:
-#	@echo "$(VERSION)" > version.txt
 
 #zip: version
 #	@mkdir -p $(ARCHIVE_DIR)
@@ -162,44 +159,19 @@ re: fclean
 #	@printf "$(CMP_WORK_ZP)"
 #	@$(eval CMP_COUNT_ZP = $(shell expr $(CMP_COUNT_ZP) + 1))
 #	@printf "$(ZIP_SUCCESS)";
-# Définition du nom de l'archive et de sa version
-# Récupération du numéro de version actuel depuis le fichier "version.txt"
-# Vérification si la cible "zip" est appelée
-# Vérification si la cible "zip" est appelée
-ifeq (zip,$(filter zip,$(MAKECMDGOALS)))
-	# Récupération du numéro de version actuel depuis le fichier "version.txt"
-VERSION := $(shell cat .version 2>/dev/null)
-
-	# Incrémentation du numéro de version et écriture dans le fichier ".version"
-NEW_VERSION := $(shell echo $$(($(VERSION) + 1)))
-$(shell echo $(NEW_VERSION) > .version)
-
-	# Définition du nom de l'archive avec le nouveau numéro de version
-ARCHIVE_NAME = $(notdir $(CURDIR))_archive_v$(NEW_VERSION).zip
-else
-	# Récupération du numéro de version actuel depuis le fichier ".version"
-VERSION := $(shell cat .version 2>/dev/null)
-
-	# Définition du nom de l'archive avec le numéro de version actuel
-ARCHIVE_NAME = $(notdir $(CURDIR))_archive_v$(VERSION).zip
-endif
 
 # Définition de la cible "zip"
 zip: | archive
-	@echo "Création de l'archive $(ARCHIVE_NAME)"
-	@zip -q -r archive/$(ARCHIVE_NAME) .
+        @echo "Création de l'archive $(ARCHIVE_NAME)"
+        @zip -r $(ARCHIVE_NAME) .
 
 # Création du dossier "archive" s'il n'existe pas déjà
 archive:
-	@mkdir -p archive
-
-.PHONY: zip archive
-
-
+        @mkdir -p archive
 
 czip:
 	@if [ -d "archive" ]; then rm -rf archive; fi
-	@rm -f .version
+	@rm -f version.txt
 	@printf "$(CLR_ZIP)";
 
 #==--------------------------------------==#
@@ -275,4 +247,4 @@ CMP_COUNT_ZP	= 0
 #==--------------------------------------==#
 
 .DEFAULT_GOAL = all
-.PHONY: all clean fclean pack unpack zip czip re archive
+.PHONY: all clean fclean pack unpack zip czip re version
